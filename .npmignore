@@ -1,0 +1,13 @@
+/node_modules
+tsconfig.json
+eslint.config.js
+bun.lock
+.gitignore
+.npmignore
+package-lock.json
+build.ts
+env.ts
+env.d.ts
+index.ts
+package.json
+

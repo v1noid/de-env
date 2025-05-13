@@ -1,0 +1,28 @@
+{
+  "name": "de-env",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "type": "module",
+  "version": "1.0.1",
+  "scripts": {
+    "dev": "bun run index.ts",
+    "build": "bun run build.ts"
+  },
+  "bin": {
+    "de-env": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/bun": "latest",
+    "tsup": "^8.4.0"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "commander": "^13.1.0",
+    "fs": "^0.0.1-security"
+  }
+}
