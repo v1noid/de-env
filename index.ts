@@ -1,8 +1,9 @@
 #! /usr/bin/env node
 
 import { Command } from "commander";
-import { existsSync, readFile, readFileSync, watch } from "fs";
+import { existsSync, mkdirSync, readFile, readFileSync, watch } from "fs";
 import { writeFile } from "fs/promises";
+import path from "path";
 
 const program = new Command();
 
@@ -60,8 +61,7 @@ if (!envFile) {
   process.exit(1);
 }
 
-const output = options.output || options.commonjs ? "./env.js" : "./env.ts";
-
+const output = options.output || (options.commonjs ? "./env.js" : "./env.ts");
 const isJs =
   output.endsWith(".js") ||
   output.endsWith(".cjs") ||
@@ -69,7 +69,8 @@ const isJs =
   options.commonjs;
 
 const prefix = options.prefix || (isVite ? "import.meta.env" : "process.env");
-
+const dirname = path.dirname(output);
+if (!existsSync(dirname)) mkdirSync(dirname, { recursive: true });
 async function generateEnv() {
   const env = readFileSync(envFile, "utf-8").trim();
   const envLines = env.split("\n");
