@@ -42,12 +42,6 @@ let options = program.opts<{
   env: string;
 }>();
 
-const isVite =
-  existsSync("./vite.config.ts") ||
-  existsSync("./vite.config.js") ||
-  existsSync("./vite.config.mjs") ||
-  existsSync("./vite.config.cjs");
-
 const envFile =
   options.env ||
   (existsSync("./.env")
@@ -68,7 +62,7 @@ const isJs =
   output.endsWith(".mjs") ||
   options.commonjs;
 
-const prefix = options.prefix || (isVite ? "import.meta.env" : "process.env");
+const prefix = options.prefix || "process.env";
 const dirname = path.dirname(output);
 if (!existsSync(dirname)) mkdirSync(dirname, { recursive: true });
 async function generateEnv() {

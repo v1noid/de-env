@@ -1,6 +1,6 @@
 # de-env
 
-A simple and efficient environment variable parser that generates TypeScript/JavaScript files from your `.env` files. It automatically detects your project type (Node.js, Vite, or Bun) and generates the appropriate environment variable access code.
+A simple and efficient environment variable parser that generates TypeScript/JavaScript files from your `.env` files.
 
 ## What it does
 
@@ -10,28 +10,6 @@ A simple and efficient environment variable parser that generates TypeScript/Jav
 - Handles comments and empty lines
 - Detects duplicate keys
 - Supports different module formats (ESM/CommonJS)
-- Automatically detects Vite projects and uses `import.meta.env` instead of `process.env`
-
-### Vite Support
-
-When used in a Vite project, `de-env` automatically:
-- Detects the presence of `vite.config.ts/js/mjs/cjs`
-- Uses `import.meta.env` instead of `process.env`
-- Generates Vite-compatible environment variable access
-
-Example output in a Vite project:
-```typescript
-// env.ts
-type Env = {
-  readonly DB_HOST: string;
-  readonly DB_PORT: number;
-};
-
-export const env: Env = {
-  DB_HOST: import.meta.env.DB_HOST!,
-  DB_PORT: Number(import.meta.env.DB_PORT),
-};
-```
 
 ### Example
 
@@ -205,7 +183,6 @@ de-env --commonjs
 
 ## Features
 
-- Automatically detects Vite projects and uses appropriate env prefix
 - Supports TypeScript and JavaScript output
 - Generates type definitions for TypeScript
 - Watch mode for automatic updates

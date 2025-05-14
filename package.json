@@ -3,10 +3,11 @@
   "main": "dist/index.js",
   "module": "dist/index.js",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "scripts": {
     "dev": "bun run --watch index.ts",
-    "build": "bun run build.ts"
+    "build": "bun run build.ts",
+    "publish": "bun run publish.ts"
   },
   "bin": {
     "de-env": "dist/index.js"
@@ -22,7 +23,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "commander": "^13.1.0",
-    "fs": "^0.0.1-security"
+    "commander": "^13.1.0"
   }
 }
