@@ -1,13 +1,37 @@
 {
   "name": "de-env",
+  "description": "A command-line tool for managing environment variables",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "type": "module",
-  "version": "1.0.3",
+  "version": "1.0.5",
+  "author": {
+    "name": "v1noid",
+    "email": "contact@v1noid.com",
+    "url": "https://github.com/v1noid"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/v1noid/de-env"
+  },
+  "homepage": "https://github.com/v1noid/de-env#readme",
+  "bugs": {
+    "url": "https://github.com/v1noid/de-env/issues"
+  },
+  "keywords": [
+    "env",
+    "environment",
+    "variables",
+    "cli",
+    "command-line"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "bun run --watch index.ts",
-    "build": "bun run build.ts",
-    "publish": "bun run publish.ts"
+    "build": "bun run build.ts"
   },
   "bin": {
     "de-env": "dist/index.js"
@@ -23,6 +47,7 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "commander": "^13.1.0"
+    "commander": "^13.1.0",
+    "ts-morph": "^25.0.1"
   }
 }

@@ -8,6 +8,6 @@ package-lock.json
 build.ts
 env.ts
 env.d.ts
-index.ts
+src/*
 package.json
-
+test/*
