@@ -11,3 +11,4 @@ env.d.ts
 src/*
 package.json
 test/*
+tsup.config.ts

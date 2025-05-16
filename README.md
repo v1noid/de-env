@@ -1,20 +1,19 @@
 # de-env
 
-A simple and efficient environment variable parser that generates TypeScript/JavaScript files from your `.env` files.
+A simple and efficient environment variable parser that generates TypeScript/JavaScript files from your environment variables using a schema-based approach.
 
 ## What it does
 
-`de-env` takes your `.env` file and converts it into a strongly-typed TypeScript/JavaScript module. It automatically:
-- Detects numeric values and converts them
-- Generates TypeScript types
-- Handles comments and empty lines
-- Detects duplicate keys
+`de-env` takes your environment variables and converts them into a strongly-typed TypeScript/JavaScript module using a schema definition. It automatically:
+- Generates a schema from your environment variables
+- Handles type casting (string, number, boolean)
+- Supports required fields validation
 - Supports different module formats (ESM/CommonJS)
 
 ### Example
 
-Given a `.env` file:
-```env
+Given environment variables:
+```bash
 # Database configuration
 DB_HOST=localhost
 DB_PORT=5432
@@ -23,108 +22,54 @@ API_KEY="your-secret-key"
 DEBUG=true
 ```
 
-#### TypeScript Output (default)
-Running `de-env` will generate:
+#### Automatic Schema Generation
+Running `de-env config.ts` will automatically generate:
 
 ```typescript
-// env.ts
-type Env = {
-  readonly DB_HOST: string;
-  readonly DB_PORT: number;
-  readonly DB_NAME: string;
-  readonly API_KEY: string;
-  readonly DEBUG: boolean;
-};
+// config.ts
+import { EnvConfig } from "de-env";
 
-export const env: Env = {
-  DB_HOST: process.env.DB_HOST!,
-  DB_PORT: Number(process.env.DB_PORT),
-  DB_NAME: process.env.DB_NAME!,
-  API_KEY: process.env.API_KEY!,
-  DEBUG: process.env.DEBUG!,
-};
+const Env = EnvConfig({
+  DB_HOST: "string",
+  DB_PORT: "number",
+  DB_NAME: "string",
+  API_KEY: "string",
+  DEBUG: "boolean"
+});
+
+export default Env;
 ```
+
+You can then modify the schema to add required fields:
 
 ```typescript
-// env.d.ts
-declare const env: {
-  readonly DB_HOST: string;
-  readonly DB_PORT: number;
-  readonly DB_NAME: string;
-  readonly API_KEY: string;
-  readonly DEBUG: boolean;
-};
+// config.ts
+import { EnvConfig } from "de-env";
 
-export { env };
-```
+const Env = EnvConfig({
+  DB_HOST: "string",
+  DB_PORT: "number",
+  DB_NAME: ["string", "required"], // Mark as required
+  API_KEY: ["string", "required"], // Mark as required
+  DEBUG: "boolean"
+});
 
-#### JavaScript ESM Output
-Running `de-env --output env.js` will generate:
-
-```javascript
-// env.js
-export const env = {
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: Number(process.env.DB_PORT),
-  DB_NAME: process.env.DB_NAME,
-  API_KEY: process.env.API_KEY,
-  DEBUG: process.env.DEBUG,
-};
-```
-
-```typescript
-// env.d.ts
-declare const env: {
-  readonly DB_HOST: string;
-  readonly DB_PORT: number;
-  readonly DB_NAME: string;
-  readonly API_KEY: string;
-  readonly DEBUG: boolean;
-};
-
-export { env };
-```
-
-#### CommonJS Output
-Running `de-env --commonjs` will generate:
-
-```javascript
-// env.js
-module.exports = {
-  DB_HOST: process.env.DB_HOST,
-  DB_PORT: Number(process.env.DB_PORT),
-  DB_NAME: process.env.DB_NAME,
-  API_KEY: process.env.API_KEY,
-  DEBUG: process.env.DEBUG,
-};
-```
-
-```typescript
-// env.d.ts
-declare const env: {
-  readonly DB_HOST: string;
-  readonly DB_PORT: number;
-  readonly DB_NAME: string;
-  readonly API_KEY: string;
-  readonly DEBUG: boolean;
-};
-
-export { env };
+export default Env;
 ```
 
 Now you can use your environment variables with full TypeScript support:
 
 ```typescript
-// TypeScript/ESM
-import { env } from './env';
-
-// CommonJS
-const { env } = require('./env');
+import Env from './config';
 
 // TypeScript will provide autocomplete and type checking
-console.log(env.DB_HOST);    // Type: string
-console.log(env.DB_PORT);    // Type: number
-console.log(env.API_KEY);    // Type: string
+console.log(Env("DB_HOST"));    // Type: string
+console.log(Env("DB_PORT"));    // Type: number
+console.log(Env("API_KEY"));    // Type: string
+console.log(Env("DEBUG"));      // Type: boolean
+
+// Will throw an error if DB_NAME is not set in environment variables
+console.log(Env("DB_NAME"));    // Type: string
 ```
 
 ## Installation
@@ -136,66 +81,50 @@ npm install de-env
 ## Usage
 
 ```bash
-de-env [options]
+de-env <output-path>
 ```
 
-## Options
-
-| Option | Description | Default |
-|--------|-------------|---------|
-| `-w, --watch` | Watch the env file for changes | false |
-| `-e, --env <string>` | Specify custom env file location | `.env` or `.env.local` |
-| `-p, --prefix <string>` | Custom prefix for env variables | `process.env` (or `Bun.env`) |
-| `-o, --output <string>` | Custom output file location | `env.ts` |
-| `-c, --commonjs` | Output in CommonJS format | false (ESM by default) |
-
-## Examples
+### Examples
 
 1. Basic usage:
 ```bash
-de-env
+de-env config.ts
 ```
 
-2. Watch mode for automatic updates:
+2. Custom path:
 ```bash
-de-env --watch
+de-env ./src/config/env.ts
 ```
 
-3. Custom env file location:
-```bash
-de-env --env ./config/.env.production
-```
+## Schema Types
 
-4. Custom prefix:
-```bash
-de-env --prefix Bun.env
-```
+The schema supports the following types:
+- `"string"` - String values
+- `"number"` - Numeric values (automatically converted)
+- `"boolean"` - Boolean values (automatically converted)
 
-5. Custom output file:
-```bash
-de-env --output ./src/config/env.ts
-```
-
-6. CommonJS output:
-```bash
-de-env --commonjs
+You can mark fields as required by using an array with "required":
+```typescript
+{
+  REQUIRED_FIELD: ["string", "required"],
+  OPTIONAL_FIELD: "string"
+}
 ```
 
 ## Features
 
-- Supports TypeScript and JavaScript output
-- Generates type definitions for TypeScript
-- Watch mode for automatic updates
-- Handles duplicate key detection
-- Supports both `.env` and `.env.local` files
-- Converts numeric values automatically
-- Preserves comments in env files
+- Automatic schema generation from environment variables
+- Automatic type casting based on schema
+- Required field validation (user-defined)
+- TypeScript support with full type inference
+- Simple and intuitive API
 
-## Output
+## Workflow
 
-The tool generates two files:
-1. `env.ts` (or `env.js` for CommonJS) - Contains the parsed environment variables
-2. `env.d.ts` (for TypeScript) - Contains type definitions
+1. Set up your environment variables
+2. Run `de-env config.ts` to automatically generate the schema
+3. Modify the generated schema to add required fields if needed
+4. Use the `Env` function in your code with full type safety
 
 ## License
 

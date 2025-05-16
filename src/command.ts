@@ -1,9 +1,9 @@
 #! /usr/bin/env node
 
 import { Command } from "commander";
-import { existsSync, readFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 
-import { SyntaxKind } from "ts-morph";
+import {  SyntaxKind, VariableDeclarationKind } from "ts-morph";
 import { Project } from "ts-morph";
 
 const program = new Command();
@@ -20,19 +20,25 @@ async function generateEnv(envPath: string, outputPath: string) {
     console.error(`${envPath} does not exist`);
     process.exit(1);
   }
+
   if (!existsSync(outputPath)) {
-    console.error(`${outputPath} does not exist`);
-    process.exit(1);
+    writeFileSync(outputPath, "");
   }
+
   const sourceFile = project.addSourceFileAtPath(outputPath);
   const env = readFileSync(envPath, "utf-8").trim();
   const envLines = env.split("\n");
 
-  let envVars: string = "";
+  let envVars = "";
   const keys: string[] = [];
-
+  let required = false;
   for (let lineIndex in envLines) {
     const line = envLines[lineIndex].trim();
+    if (line === "#!") {
+      required = true;
+      continue;
+    }
+
     if (line.startsWith("#") || !line) continue;
 
     let [key, value] = line.split("=");
@@ -51,23 +57,49 @@ async function generateEnv(envPath: string, outputPath: string) {
       );
       process.exit(1);
     } else keys.push(key);
+    const type = !value
+      ? `"undefined"`
+      : value === "true" || value === "false"
+      ? `"boolean"`
+      : Number.isNaN(+value)
+      ? `"string"`
+      : `"number"`;
 
-    envVars += `  ${key}: ${
-      !value
-        ? `"undefined"`
-        : value === "true" || value === "false"
-        ? `"boolean"`
-        : Number.isNaN(+value)
-        ? `"string"`
-        : `"number"`
-    },\n`;
+    envVars += `  ${key}:${required ? `[${type}, "required"]` : type},\n`;
+    required = false;
   }
 
-  const envConfig = sourceFile
+  let envConfig = sourceFile
     .getDescendantsOfKind(SyntaxKind.CallExpression)
     .find((node) => node.getExpression().getText() === "EnvConfig");
-  console.log(`Parse ${envPath} \n{\n${envVars}}`);
-  envConfig?.getArguments()[0].replaceWithText(`{\n${envVars}}`);
+
+  const pathOfPkg =
+    process.env.NODE_ENV === "development" ? "./src/index.ts" : "de-env";
+
+  envVars = `{\n${envVars}}`;
+  if (!envConfig) {
+    !sourceFile.getImportDeclaration(pathOfPkg)?.getFullText() &&
+      sourceFile.addImportDeclaration({
+        moduleSpecifier: pathOfPkg,
+        namedImports: ["EnvConfig"],
+      });
+      sourceFile.addVariableStatement({
+        declarationKind: VariableDeclarationKind.Const,
+        isExported: true,
+        declarations: [{ name: "Env", initializer: `EnvConfig(${envVars})` }],
+      });
+    envConfig = sourceFile
+      .getDescendantsOfKind(SyntaxKind.CallExpression)
+      .find((node) => node.getExpression().getText() === "EnvConfig");
+  }
+
+  const envConfigArgs = envConfig?.getArguments()?.[0];
+  if (!envConfigArgs) {
+    envConfig?.addArgument(envVars);
+  } else {
+    envConfigArgs.replaceWithText(envVars);
+  }
+
   project.saveSync();
   console.log(`Saved ${outputPath}`);
 }
