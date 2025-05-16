@@ -31,11 +31,19 @@ async function generateEnv(envPath: string, outputPath: string) {
 
   let envVars = "";
   const keys: string[] = [];
-  let required = false;
+  let required: 'one' | 'multi' | '' = '';
   for (let lineIndex in envLines) {
     const line = envLines[lineIndex].trim();
+    if(line === '#!!!') {
+      required = 'multi';
+      console.log(required)
+      continue;
+    }
+    if(required === 'multi' && line === '#---') {
+      required = '';
+    }
     if (line === "#!") {
-      required = true;
+      required = 'one';
       continue;
     }
 
@@ -66,7 +74,10 @@ async function generateEnv(envPath: string, outputPath: string) {
       : `"number"`;
 
     envVars += `  ${key}:${required ? `[${type}, "required"]` : type},\n`;
-    required = false;
+    if(required === 'one') {
+      required = '';
+    }
+    
   }
 
   let envConfig = sourceFile

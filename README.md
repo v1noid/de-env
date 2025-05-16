@@ -29,6 +29,34 @@ API_KEY="your-secret-key"  # Using #! marks this as required
 DEBUG=true
 ```
 
+You can also use required block
+
+```bash
+# starting of required block with #!!!
+#!!!
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=mydb
+API_KEY="your-secret-key"
+DEBUG=true
+#---
+# use #--- to end the block
+```
+
+Now all the variable in between the comment are marked as required
+
+```typescript
+import { EnvConfig } from "de-env";
+
+export const Env = EnvConfig({
+  DB_HOST: ["string", "required"],
+  DB_PORT: ["number", "required"],
+  DB_NAME: ["string", "required"],
+  API_KEY: ["string", "required"],
+  DEBUG: ["string", "required"]
+});
+```
+
 #### Automatic Schema Generation
 Running `de-env .env config.env.ts` will automatically generate:
 
