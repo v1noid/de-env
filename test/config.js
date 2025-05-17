@@ -1,6 +1,6 @@
-import { EnvConfig } from "de-env";
+import { EnvSchema } from "de-env";
 
-const Env = EnvConfig({
+const Env = EnvSchema({
     DB_HOST: "string",
     DB_PORT: "number",
     DB_USER: "string",

@@ -80,35 +80,35 @@ async function generateEnv(envPath: string, outputPath: string) {
     
   }
 
-  let envConfig = sourceFile
+  let EnvSchema = sourceFile
     .getDescendantsOfKind(SyntaxKind.CallExpression)
-    .find((node) => node.getExpression().getText() === "EnvConfig");
+    .find((node) => node.getExpression().getText() === "EnvSchema");
 
   const pathOfPkg =
     process.env.NODE_ENV === "development" ? "./src/index.ts" : "de-env";
 
   envVars = `{\n${envVars}}`;
-  if (!envConfig) {
+  if (!EnvSchema) {
     !sourceFile.getImportDeclaration(pathOfPkg)?.getFullText() &&
       sourceFile.addImportDeclaration({
         moduleSpecifier: pathOfPkg,
-        namedImports: ["EnvConfig"],
+        namedImports: ["EnvSchema"],
       });
       sourceFile.addVariableStatement({
         declarationKind: VariableDeclarationKind.Const,
         isExported: true,
-        declarations: [{ name: "Env", initializer: `EnvConfig(${envVars})` }],
+        declarations: [{ name: "Env", initializer: `EnvSchema(${envVars})` }],
       });
-    envConfig = sourceFile
+    EnvSchema = sourceFile
       .getDescendantsOfKind(SyntaxKind.CallExpression)
-      .find((node) => node.getExpression().getText() === "EnvConfig");
+      .find((node) => node.getExpression().getText() === "EnvSchema");
   }
 
-  const envConfigArgs = envConfig?.getArguments()?.[0];
-  if (!envConfigArgs) {
-    envConfig?.addArgument(envVars);
+  const EnvSchemaArgs = EnvSchema?.getArguments()?.[0];
+  if (!EnvSchemaArgs) {
+    EnvSchema?.addArgument(envVars);
   } else {
-    envConfigArgs.replaceWithText(envVars);
+    EnvSchemaArgs.replaceWithText(envVars);
   }
 
   project.saveSync();

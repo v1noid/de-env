@@ -46,9 +46,9 @@ DEBUG=true
 Now all the variable in between the comment are marked as required
 
 ```typescript
-import { EnvConfig } from "de-env";
+import { EnvSchema } from "de-env";
 
-export const Env = EnvConfig({
+export const Env = EnvSchema({
   DB_HOST: ["string", "required"],
   DB_PORT: ["number", "required"],
   DB_NAME: ["string", "required"],
@@ -62,9 +62,9 @@ Running `de-env .env config.env.ts` will automatically generate:
 
 ```typescript
 // config.env.ts
-import { EnvConfig } from "de-env";
+import { EnvSchema } from "de-env";
 
-export const Env = EnvConfig({
+export const Env = EnvSchema({
   DB_HOST: "string",
   DB_PORT: "number",
   DB_NAME: "string",
@@ -78,9 +78,9 @@ You can also manually define your schema:
 
 ```typescript
 // config.env.ts
-import { EnvConfig } from "de-env";
+import { EnvSchema } from "de-env";
 
-export const Env = EnvConfig({
+export const Env = EnvSchema({
   DB_HOST: "string",
   DB_PORT: "number",
   DB_NAME: ["string", "required"], // Mark as required

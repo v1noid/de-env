@@ -1,6 +1,6 @@
 type EnvType = "number" | "string" | "boolean";
 
-function EnvConfig<T extends Record<string, EnvType | [EnvType, "required"]>>(
+function EnvSchema<T extends Record<string, EnvType | [EnvType, "required"]>>(
   env: T
 ) {
   for (const envKey in env) {
@@ -58,4 +58,4 @@ function EnvConfig<T extends Record<string, EnvType | [EnvType, "required"]>>(
   };
 }
 
-export { EnvConfig };
+export { EnvSchema };
