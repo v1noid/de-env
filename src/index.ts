@@ -8,7 +8,7 @@ function EnvSchema<T extends Record<string, EnvType | [EnvType, "required"]>>(
     const type = (
       Array.isArray(env[envKey]) ? env[envKey][0] : env[envKey]
     ).toString();
-
+console.log(required, process.env[envKey])
     if (required && !process.env[envKey]) {
       console.error(`'${envKey}' is required`);
       process.exit(1);
