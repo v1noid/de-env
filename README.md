@@ -1,6 +1,17 @@
+
+
+<div align="center">
+  <a href="https://de-env.v1noid.com"><img src="https://de-env.v1noid.com/logo.png" alt="de-env" width="100"/></a>
+  
+  [![npm](https://img.shields.io/npm/dt/de-env.svg)](https://www.npmjs.com/package/de-env)
+  [![GitHub stars](https://img.shields.io/github/stars/v1noid/de-env.svg)](https://github.com/v1noid/de-env/stargazers)
+</div>
+
 # de-env
 
 A simple and efficient environment variable parser that generates TypeScript/JavaScript files from your environment variables using a schema-based approach.
+
+Visit our official website: [de-env.v1noid.com](https://de-env.v1noid.com)
 
 ## What it does
 
