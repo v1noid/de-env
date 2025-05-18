@@ -31,12 +31,12 @@
       "require": "./dist/index.cjs"
     }
   },
-  "engines": {  
+  "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "dev:command": "bun run src/command.ts",
+    "dev": "bun run --watch src/test.ts",
+    "dev:command": "bun run --watch src/command.ts parse .env src/test.ts",
     "build": "tsup",
     "test": "bun test ./src/test/index.ts"
   },

@@ -5,7 +5,7 @@ import { existsSync, readFileSync, writeFileSync } from "fs";
 
 import {  SyntaxKind, VariableDeclarationKind } from "ts-morph";
 import { Project } from "ts-morph";
-
+import util from 'util'
 const program = new Command();
 
 const project = new Project();
@@ -29,21 +29,20 @@ async function generateEnv(envPath: string, outputPath: string) {
   const env = readFileSync(envPath, "utf-8").trim();
   const envLines = env.split("\n");
 
-  let envVars = "";
+  let envVars: Record<string, any> | string = {};
   const keys: string[] = [];
-  let required: 'one' | 'multi' | '' = '';
+  let optional: 'one' | 'multi' | '' = '';
   for (let lineIndex in envLines) {
     const line = envLines[lineIndex].trim();
     if(line === '#!!!') {
-      required = 'multi';
-      console.log(required)
+      optional = 'multi';
       continue;
     }
-    if(required === 'multi' && line === '#---') {
-      required = '';
+    if(optional === 'multi' && line === '#---') {
+      optional = '';
     }
     if (line === "#!") {
-      required = 'one';
+      optional = 'one';
       continue;
     }
 
@@ -66,16 +65,16 @@ async function generateEnv(envPath: string, outputPath: string) {
       process.exit(1);
     } else keys.push(key);
     const type = !value
-      ? `"undefined"`
+      ? "undefined"
       : value === "true" || value === "false"
-      ? `"boolean"`
+      ? "boolean"
       : Number.isNaN(+value)
-      ? `"string"`
-      : `"number"`;
+      ? "string"
+      : "number";
     
-    envVars += `  ${key}:${required ? `[${type}, "required"]` : type},\n`;
-    if(required === 'one') {
-      required = '';
+    envVars[key] = optional ? [type, "optional"] : type;
+    if(optional === 'one') {
+      optional = '';
     }
     
   }
@@ -87,7 +86,7 @@ async function generateEnv(envPath: string, outputPath: string) {
   const pathOfPkg =
     process.env.NODE_ENV === "development" ? "./src/index.ts" : "de-env";
 
-  envVars = `{\n${envVars}}`;
+  envVars = util.inspect(envVars, { depth: null });
   if (!EnvSchema) {
     !sourceFile.getImportDeclaration(pathOfPkg)?.getFullText() &&
       sourceFile.addImportDeclaration({
