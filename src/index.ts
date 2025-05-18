@@ -1,59 +1,84 @@
-type EnvType = "number" | "string" | "boolean";
+type EnvTypes = {
+  number: number;
+  string: string;
+  boolean: boolean;
+};
 
-function EnvSchema<T extends Record<string, EnvType | [EnvType, "required"]>>(
-  env: T
-) {
-  for (const envKey in env) {
-    const required = Array.isArray(env[envKey]) ? !!env[envKey][1] : undefined;
+type Options<T extends keyof EnvTypes> = {
+  optional: boolean;
+  validator?: (value: EnvTypes[T]) => boolean;
+};
+
+type OptionsSchema = {
+  [K in keyof EnvTypes]: [K, Options<K>];
+};
+
+type ArraySchema = keyof EnvTypes | OptionsSchema[keyof OptionsSchema];
+
+type EnvSchemaArgs = Record<string, ArraySchema>;
+
+type GetCoreType<T> = T extends keyof EnvTypes ? EnvTypes[T] : undefined;
+
+type GetEnvReturnType<
+  Schema extends EnvSchemaArgs,
+  Type extends keyof Schema
+> = GetCoreType<Schema[Type][0]> extends undefined
+  ? GetCoreType<Schema[Type]>
+  : GetCoreType<Schema[Type][0]>;
+
+function EnvSchema(schema: EnvSchemaArgs) {
+  const requires: string[] = [];
+  for (const envKey in schema) {
+    const optional = Array.isArray(schema[envKey])
+      ? !!schema[envKey]?.[1]?.optional
+      : undefined;
+
+    const validator = Array.isArray(schema[envKey])
+      ? schema[envKey][1]?.validator
+      : undefined;
+
     const type = (
-      Array.isArray(env[envKey]) ? env[envKey][0] : env[envKey]
+      Array.isArray(schema[envKey]) ? schema[envKey][0] : schema[envKey]
     ).toString();
-console.log(required, process.env[envKey])
-    if (required && !process.env[envKey]) {
-      console.error(`'${envKey}' is required`);
-      process.exit(1);
+
+    if (!optional && !process.env[envKey]) {
+      requires.push(envKey);
     }
 
     if (type === "number" && Number.isNaN(Number(process.env[envKey]))) {
-      console.error(
+      throw new Error(
         `Expected '${envKey}' to be a number, but got '${typeof process.env[
           envKey
         ]}'`
       );
-      process.exit(1);
     }
     if (
       type === "boolean" &&
       process.env[envKey] !== "true" &&
       process.env[envKey] !== "false"
     ) {
-      console.error(
+      throw new Error(
         `Expected '${envKey}' to be a boolean, but got '${process.env[envKey]}'`
       );
-      process.exit(1);
     }
+
+   
   }
 
-  return function getEnv<K extends keyof T>(
+  if (requires.length) {
+    throw new Error(
+      `Missing required environment variables: [ ${requires.join(", ")} ]`
+    );
+  }
+
+  return function getEnv<K extends keyof typeof schema>(
     key: K
-  ): T[K][0] extends "number"
-    ? number
-    : T[K] extends "number"
-    ? number
-    : T[K][0] extends "string"
-    ? string
-    : T[K] extends "string"
-    ? string
-    : T[K][0] extends "boolean"
-    ? boolean
-    : T[K] extends "boolean"
-    ? boolean
-    : undefined {
-    if (env[key] === "number")
+  ): GetEnvReturnType<typeof schema, K> {
+    if (schema[key] === "number")
       return Number(process.env[key.toString()]) as any;
-    if (env[key] === "string") return process.env[key.toString()] as any;
-    if (env[key] === "boolean")
-      return Boolean(process.env[key.toString()]) as any;
+    if (schema[key] === "string") return process.env[key.toString()] as any;
+    if (schema[key] === "boolean")
+      return (process.env[key.toString()] === "true" ? true : false) as any;
     return undefined as any;
   };
 }

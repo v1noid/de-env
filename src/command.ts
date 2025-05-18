@@ -72,7 +72,7 @@ async function generateEnv(envPath: string, outputPath: string) {
       : Number.isNaN(+value)
       ? `"string"`
       : `"number"`;
-
+    
     envVars += `  ${key}:${required ? `[${type}, "required"]` : type},\n`;
     if(required === 'one') {
       required = '';
