@@ -23,7 +23,7 @@ Visit our official website: [de-env.v1noid.com](https://de-env.v1noid.com)
 ### Key Features
 - Generates a schema from your environment variables
 - Handles type casting (string, number, boolean)
-- Supports required fields validation using `#!` prefix in `.env`
+- Supports optional fields validation using `#!` prefix in `.env`
 - Supports different module formats (ESM/CommonJS)
 - Automatic TypeScript type generation for better debugging
 
@@ -36,14 +36,14 @@ DB_HOST=localhost
 DB_PORT=5432
 DB_NAME=mydb
 #!
-API_KEY="your-secret-key"  # Using #! marks this as required
+API_KEY="your-secret-key"  # Using #! marks this as optional
 DEBUG=true
 ```
 
-You can also use required block
+You can also use optional block
 
 ```bash
-# starting of required block with #!!!
+# starting of optional block with #!!!
 #!!!
 DB_HOST=localhost
 DB_PORT=5432
@@ -54,17 +54,17 @@ DEBUG=true
 # use #--- to end the block
 ```
 
-Now all the variable in between the comment are marked as required
+Now all the variable in between the comment are marked as optional
 
 ```typescript
 import { EnvSchema } from "de-env";
 
 export const Env = EnvSchema({
-  DB_HOST: ["string", "required"],
-  DB_PORT: ["number", "required"],
-  DB_NAME: ["string", "required"],
-  API_KEY: ["string", "required"],
-  DEBUG: ["string", "required"]
+  DB_HOST: ["string", "optional"],
+  DB_PORT: ["number", "optional"],
+  DB_NAME: ["string", "optional"],
+  API_KEY: ["string", "optional"],
+  DEBUG: ["string", "optional"]
 });
 ```
 
@@ -79,7 +79,7 @@ export const Env = EnvSchema({
   DB_HOST: "string",
   DB_PORT: "number",
   DB_NAME: "string",
-  API_KEY: ["string", "required"], // Automatically marked as required due to #!
+  API_KEY: ["string", "optional"], // Automatically marked as optional due to #!
   DEBUG: "boolean"
 });
 ```
@@ -94,8 +94,8 @@ import { EnvSchema } from "de-env";
 export const Env = EnvSchema({
   DB_HOST: "string",
   DB_PORT: "number",
-  DB_NAME: ["string", "required"], // Mark as required
-  API_KEY: ["string", "required"], // Mark as required
+  DB_NAME: ["string", "optional"], // Mark as optional
+  API_KEY: ["string", "optional"], // Mark as optional
   DEBUG: "boolean"
 });
 ```
@@ -137,17 +137,17 @@ The schema supports the following types:
 - `"number"` - Numeric values (automatically converted)
 - `"boolean"` - Boolean values (automatically converted)
 
-You can mark fields as required in two ways:
+You can mark fields as optional in two ways:
 1. Using `#!` prefix in your `.env` file:
 ```bash
 #!
-REQUIRED_VAR=value
+optional_VAR=value
 ```
 
-2. Using an array with "required" in your schema:
+2. Using an array with "optional" in your schema:
 ```typescript
 {
-  REQUIRED_FIELD: ["string", "required"],
+  optional_FIELD: ["string", "optional"],
   OPTIONAL_FIELD: "string"
 }
 ```
@@ -157,13 +157,13 @@ REQUIRED_VAR=value
 - Automatic schema generation from environment variables using `de-env`
 - Manual schema definition for fine-grained control
 - Automatic type casting based on schema
-- Required field validation (using `#!` or schema definition)
+- optional field validation (using `#!` or schema definition)
 - TypeScript support with full type inference
 - Automatic type generation for better debugging
 
 ## Workflow
 
-1. Set up your environment variables (use `#!` prefix for required variables)
+1. Set up your environment variables (use `#!` prefix for optional variables)
 2. Run `de-env config.ts` to automatically generate the schema or manually write schema
 4. Use the `Env` function in your code with full type safety
 
