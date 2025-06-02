@@ -2,7 +2,7 @@
   "name": "de-env",
   "description": "A command-line tool for managing environment variables",
   "type": "module",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "author": {
     "name": "v1noid",
     "email": "inbox@v1noid.com",
@@ -13,7 +13,7 @@
     "type": "git",
     "url": "https://github.com/v1noid/de-env"
   },
-  "homepage": "https://github.com/v1noid/de-env#readme",
+  "homepage": "https://de-env.v1noid.com",
   "bugs": {
     "url": "https://github.com/v1noid/de-env/issues"
   },
@@ -27,8 +27,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "default": "./dist/index.js"
     }
   },
   "engines": {

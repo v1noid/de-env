@@ -2,11 +2,12 @@ type EnvTypes = {
   number: number;
   string: string;
   boolean: boolean;
+  undefined: undefined;
 };
 
 type EnvSchemaArgs = Record<
   string,
-  keyof EnvTypes | [keyof EnvTypes, "optional"]
+  keyof EnvTypes | [Exclude<keyof EnvTypes, "undefined">, "optional"]
 >;
 
 type GetCoreType<T> = T extends keyof EnvTypes ? EnvTypes[T] : undefined;
@@ -14,7 +15,9 @@ type GetCoreType<T> = T extends keyof EnvTypes ? EnvTypes[T] : undefined;
 type GetEnvReturnType<
   Schema extends EnvSchemaArgs,
   Type extends keyof Schema
-> = GetCoreType<Schema[Type][0]> extends undefined
+> = Schema[Type] extends [infer T, "optional"]
+  ? GetCoreType<T> | undefined
+  : GetCoreType<Schema[Type][0]> extends undefined
   ? GetCoreType<Schema[Type]>
   : GetCoreType<Schema[Type][0]>;
 

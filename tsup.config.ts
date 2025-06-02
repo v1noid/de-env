@@ -1,12 +1,11 @@
 import { defineConfig } from "tsup";
 
-
 export default defineConfig({
-  format: ["cjs", "esm"],
-  entry: ["./src/index.ts","./src/command.ts"],
+  format: ["esm"],
+  entry: ["./src/index.ts", "./src/command.ts"],
   dts: true,
   clean: true,
-  external: ["commander", "fs", "path", "ts-morph",'util'],
+  external: ["commander", "fs", "path", "ts-morph", "util"],
   outDir: "./dist",
   treeshake: true,
   skipNodeModulesBundle: true,
